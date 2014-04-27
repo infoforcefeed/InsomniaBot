@@ -1,11 +1,11 @@
-from socketproxy import Pipe, SocketPlumbing, main
-from socketproxy import logging
+from socketproxy import Pipe, PlumbingServer, main
 import os
+from mutagen.mp3 import MP3
 
 
-class TestProxy(SocketPlumbing):
-    def __init__(self, *args):
-        SocketPlumbing.__init__(self, *args)
+class TestProxy(PlumbingServer):
+    def __init__(self, *args, **kwargs):
+        PlumbingServer.__init__(self, *args, **kwargs)
         self.pipes.append(AudioPipe('horn', open('airhorn.mp3')))
         self.pipes.append(AudioPipe('trumpet', open('trumpet.mp3')))
 
@@ -17,7 +17,7 @@ class AudioPipe(Pipe):
         self.name = name
         self.buff = ''
 
-    def recieve_inbound(self, data):
+    def to_client(self, data):
 
         # Add mp3 to buffer
         if (os.path.isfile(self.name)):
@@ -31,7 +31,7 @@ class AudioPipe(Pipe):
             else:
                 data = self.buff + data[:-len(self.buff)]
                 self.buff = ''
-                
+
         return data
 
 
